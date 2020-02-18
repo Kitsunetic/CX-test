@@ -276,11 +276,18 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     layers = {
-            "conv_1_1": 1.0,
-            "conv_3_2": 1.0
-        }
-    I = torch.rand(1, 3, 128, 128).to(device)
-    T = torch.randn(1, 3, 128, 128).to(device)
+        "conv_1_1": 1.0,
+        "conv_3_2": 1.0
+    }
+    
+    I = Image.open('i.jpg')
+    T = Image.open('t.jpg')
+    transform = transforms.ToTensor()
+    I = transform(I).to(device)
+    T = transform(T).to(device)
+    I = I.view((1, *I.shape))
+    T = T.view((1, *T.shape))
+    print(I.shape, T.shape)
     contex_loss = Contextual_Loss(layers, max_1d_size=64).to(device)
     print(contex_loss(I, T))
 
