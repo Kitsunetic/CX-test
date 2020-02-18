@@ -1,7 +1,8 @@
+from collections import OrderedDict
+
 import torch
 import torch.nn as nn
-from torchvision.models import vgg19, vgg16
-from collections import OrderedDict
+from torchvision.models import vgg16, vgg19
 
 # VGG 19
 # vgg_layer = {
@@ -23,12 +24,14 @@ vgg_layer_inv = {
 class VGG_Model(nn.Module):
     def __init__(self, listen_list=None):
         super(VGG_Model, self).__init__()
+
         vgg = vgg16(pretrained=True)
         self.vgg_model = vgg.features
         vgg_dict = vgg.state_dict()
         vgg_f_dict = self.vgg_model.state_dict()
-        vgg_dict = {k: v for k, v in vgg_dict.items() if k in vgg_f_dict}
+        vgg_dict = {k: v for k, v in vgg_dict.items() if k in vgg_f_dict} # extract items that only vgg_f_dict also had
         vgg_f_dict.update(vgg_dict)
+
         # no grad
         for p in self.vgg_model.parameters():
             p.requires_grad = False
@@ -46,6 +49,3 @@ class VGG_Model(nn.Module):
             if index in self.listen:
                 self.features[vgg_layer_inv[index]] = x
         return self.features
-
-
-

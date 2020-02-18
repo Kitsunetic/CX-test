@@ -1,12 +1,13 @@
 import sys
-sys.path.append('../')
 
 import torch
 import torch.nn as nn
-from VGG_Model import VGG_Model
 import torch.nn.functional as F
-import copy
-import torchsnooper
+
+from VGG_Model import VGG_Model
+
+#sys.path.append('../')
+
 
 class Distance_Type:
     L2_Distance = 0
@@ -40,7 +41,6 @@ class Contextual_Loss(nn.Module):
         self.b = b
         self.h = h
 
-
     def forward(self, images, gt):
         if images.device.type == 'cpu':
             loss = torch.zeros(1)
@@ -72,7 +72,6 @@ class Contextual_Loss(nn.Module):
             loss += loss_t * self.layers_weights[key]
             # del vgg_images[key], vgg_gt[key]
         return loss
-
 
     @staticmethod
     def _random_sampling(tensor, n, indices):
@@ -205,7 +204,6 @@ class Contextual_Loss(nn.Module):
         cosine_dist = cosine_dist.clamp(min=0.0)
         return cosine_dist
 
-
     @staticmethod
     def _calculate_relative_distance(raw_distance, epsilon=1e-5):
         """
@@ -269,18 +267,31 @@ class Contextual_Loss(nn.Module):
             raise ValueError('NaN in computing CX_loss')
         return CX_loss
 
-
-
 if __name__ == '__main__':
     from PIL import Image
     from torchvision.transforms import transforms
     import torch.nn.functional as F
+    import matplotlib.pyplot as plt
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
     layers = {
             "conv_1_1": 1.0,
             "conv_3_2": 1.0
         }
-    I = torch.rand(1, 3, 128, 128).cuda()
-    T = torch.randn(1, 3, 128, 128).cuda()
-    contex_loss = Contextual_Loss(layers, max_1d_size=64).cuda()
+    I = torch.rand(1, 3, 128, 128).to(device)
+    T = torch.randn(1, 3, 128, 128).to(device)
+    contex_loss = Contextual_Loss(layers, max_1d_size=64).to(device)
     print(contex_loss(I, T))
 
+    # show images
+    to_pil = transforms.ToPILImage()
+    I_pil = to_pil(I.squeeze())
+    T_pil = to_pil(T.squeeze())
+
+    plt.figure(figsize=(16, 16))
+    plt.subplot(1, 2, 1)
+    plt.imshow(I_pil)
+    plt.subplot(1, 2, 2)
+    plt.imshow(T_pil)
+    plt.show()
