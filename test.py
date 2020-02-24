@@ -61,7 +61,7 @@ class RAW2RGB(torch.utils.data.Dataset):
     train = transform(train)
     test = transform(test)
     wb = torch.Tensor(self.white_balance[idx])
-    return train, test, wb
+    return train, test, wb, idx
 
   def __len__(self):
     return min(len(self.train_list),
@@ -82,7 +82,49 @@ def main():
   optimizer = torch.optim.Adam(model.parameters())
   loss = nn.L1Loss().to(device)
   
-  
+  history = {'cost': []}
+  for epoch in range(1, n_epochs+1):
+    with tqdm(total=len(dataset), ncols=128, position=0, miniters=1) as t:
+      for step, (train, test, wb, idx) in enumerate(dataloader):
+        # to device
+        train = train.to(device)
+        test = test.to(device)
+        wb = wb.to(device)
+        
+        # adjust wb
+        train[0, 0::2, 0::2] -= wb[0]
+        train[0, 1::2, 0::2] -= wb[1]
+        train[0, 1::2, 1::2] -= wb[2]
+        train[0, 0::2, 1::2] -= wb[3]
+        
+        # forward
+        result = model(train)
+        cost = loss(result, test)
+        
+        # backward
+        optimizer.zero_grad()
+        cost.backward()
+        optimizer.step()
+        
+        # disadjust wb
+        """
+        4->3 채널로 변경되었으므로 몇 번 wb를 적용해야 할 지 모르겠다.
+        
+        Task 1.
+          wb가 RGBG이므로 wb[0, 1, 2], wb[0, 2, 3] 으로 적용해본다.
+          
+        Task 2.
+          target 이미지의 평균값으로 normalize를 해준다.
+        """
+        
+        # update tqdm
+        cost_val = cost.item()
+        history['cost'].append(cost_val)
+        t.set_postfix_str('%.04f'%cost_val)
+        t.update()
+    
+  # show result
+  # TODO
 
 if __name__ == "__main__":
   main()
