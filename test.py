@@ -80,7 +80,7 @@ def main():
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
   dataset = RAW2RGB('./datasets')
-  dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=True)
+  dataloader = torch.utils.data.DataLoader(dataset, batch_size=3, shuffle=True)
 
   model = nn.Sequential(
     nn.Conv2d(1, 4, 4, stride=1, padding=2),
