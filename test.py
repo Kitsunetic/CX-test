@@ -98,7 +98,7 @@ def main():
   
   history = {'cost': []}
   for epoch in range(1, n_epochs+1):
-    with tqdm(total=len(dataset), desc='[%04d/%04d]'%(epoch, n_epochs), ncols=128, position=0, miniters=1) as t:
+    with tqdm(total=len(dataloader), desc='[%04d/%04d]'%(epoch, n_epochs), ncols=128, position=0, miniters=1) as t:
       for step, (train, test, wb, idx) in enumerate(dataloader):
         # to device
         train = train.to(device)
@@ -153,7 +153,7 @@ def main():
         t.update()
     
       # save result
-      if epoch % 5 == 0:
+      if epoch % 1 == 0:
         test_image = transforms.ToPILImage()(test[0].cpu())
         test_image.save('./result/test_%d.png'%epoch)
         test_image.close()
