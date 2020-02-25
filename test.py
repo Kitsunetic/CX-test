@@ -105,8 +105,6 @@ def main():
         test = test.to(device)
         wb = wb.to(device) # dataloader에서 (1, 4) -> (1, 1, 4)로 변환됨
         
-        print(train.shape, test.shape, wb.shape)
-        
         # adjust wb
         train[:, 0::2, 0::2] -= wb[0][0]
         train[:, 1::2, 0::2] -= wb[0][1]
@@ -155,12 +153,11 @@ def main():
         t.update()
     
       # save result
-      if epoch == 1:
-        test_image = transforms.ToPILImage()(test[0].cpu())
-        test_image.save('./result/test.png')
-        test_image.close()
-      
       if epoch % 5 == 0:
+        test_image = transforms.ToPILImage()(test[0].cpu())
+        test_image.save('./result/test_%d.png'%epoch)
+        test_image.close()
+        
         result_image = transforms.ToPILImage()(result[0].cpu())
         result_image.save('./result/result_%d.png'%epoch)
         result_image.close()
