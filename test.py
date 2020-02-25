@@ -47,7 +47,7 @@ class RAW2RGB(torch.utils.data.Dataset):
     #test = Image.open(self.test_list[idx])
     
     # make image patch
-    h, w = train.shape
+    h, w = min(train.shape[0], test.shape[0]), min(train.shape[1], test.shape[1])
     dh, dw = random.randint(0, h-patch_size), random.randint(0, w-patch_size)
     train = train[dh:dh+patch_size, dw:dw+patch_size]
     test = test[dh:dh+patch_size, dw:dw+patch_size]
