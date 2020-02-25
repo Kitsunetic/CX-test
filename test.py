@@ -18,6 +18,7 @@ from ContextualLoss import Contextual_Loss, Distance_Type
 black_lv = 512
 white_lv = 16383
 n_epochs = 200
+patch_size = 64
 
 class RAW2RGB(torch.utils.data.Dataset):
   def __init__(self, dataset_path: str, black_lv=512, white_lv=16383):
@@ -40,11 +41,18 @@ class RAW2RGB(torch.utils.data.Dataset):
   
   def __getitem__(self, idx: int):
     with rawpy.imread(self.train_list[idx]) as raw:
-      train = np.array(raw.raw_image_visible, dtype=np.float32)
+      train = np.array(raw.raw_image_visible, dtype=np.float32)[8:-8]
       train = (train-black_lv) / (white_lv-black_lv)
     
-    #test = imageio.imread(self.test_list[idx])
-    test = Image.open(self.test_list[idx])
+    test = imageio.imread(self.test_list[idx])
+    #test = Image.open(self.test_list[idx])
+    
+    # make image patch
+    h, w = train.shape
+    dh, dw = random.randint(0, h-patch_size), random.randint(0, w-patch_size)
+    train = train[dh:dh+patch_size, dw:dw+patch_size]
+    test = train[dh:dh+patch_size, dw:dw+patch_size]
+    test = Image.fromarray(test)
     
     transform_train = transforms.ToTensor()
     transform_test = transforms.Compose([
@@ -124,7 +132,7 @@ def main():
         #result[:, 2, :, :] += wb[0][2]
         
         # crop result -> raw파일의 w/h가 16pixel씩 크므로, 1/2사이즈 된 result에서 상하좌우 4픽셀씩 잘라낸다
-        result = result[:, :, 4:-4, 4:-4]
+        #result = result[:, :, 4:-4, 4:-4]
         
         # calculate loss
         #print(result.shape, test.shape)
