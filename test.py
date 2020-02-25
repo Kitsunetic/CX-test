@@ -28,9 +28,9 @@ class RAW2RGB(torch.utils.data.Dataset):
     self.train_path = os.path.join(dataset_path, 'train')
     self.test_path = os.path.join(dataset_path, 'test')
     self.train_list, self.test_list = [], []
-    for train, test in zip(os.listdir(self.train_path), os.listdir(self.test_path)):
-      self.train_list.append(os.path.join(self.train_path, train))
-      self.test_list.append(os.path.join(self.test_path, test))
+    for i in range(len(os.listdir(self.train_path))):
+      self.train_list.append(os.path.join(self.train_path, '%05d.ARW'%i))
+      self.test_list.append(os.path.join(self.test_path, '%05d.JPG'%i))
 
     with open(os.path.join(dataset_path, 'wb.txt'), 'r') as f:
       self.white_balance = []
