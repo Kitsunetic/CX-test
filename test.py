@@ -151,12 +151,12 @@ def main():
     
       # save result
       if epoch == 1:
-        test_image = transforms.ToPILImage()(test[0])
+        test_image = transforms.ToPILImage()(test[0].cpu())
         test_image.save('./result/test.png')
         test_image.close()
       
       if epoch % 5 == 0:
-        result_image = transforms.ToPILImage()(result[0])
+        result_image = transforms.ToPILImage()(result[0].cpu())
         result_image.save('./result/result_%d.png'%epoch)
         result_image.close()
         
