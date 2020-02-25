@@ -42,15 +42,15 @@ class RAW2RGB(torch.utils.data.Dataset):
   def __getitem__(self, idx: int):
     # load images
     with rawpy.imread(self.train_list[idx]) as raw:
-      train = np.array(raw.raw_image_visible, dtype=np.float32)[8:-8]
+      train = np.array(raw.raw_image_visible, dtype=np.float32)[8:-8, 8:-8]
     test = imageio.imread(self.test_list[idx])
     #test = Image.open(self.test_list[idx])
     
     # make image patch
-    h, w = min(train.shape[0], test.shape[0]), min(train.shape[1], test.shape[1])
+    h, w = train.shape
     dh, dw = random.randint(0, h-patch_size), random.randint(0, w-patch_size)
     train = train[dh:dh+patch_size, dw:dw+patch_size]
-    test = test[dh:dh+patch_size, dw:dw+patch_size]
+    test = test[dh:dh+patch_size, dw:dw+patch_size, :]
     test = Image.fromarray(test)
     
     # white balance
