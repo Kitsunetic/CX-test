@@ -17,7 +17,7 @@ from ContextualLoss import Contextual_Loss, Distance_Type
 
 black_lv = 512
 white_lv = 16383
-n_epochs = 15
+n_epochs = 200
 shift_sign = -1
 
 rgb_mean = np.array([0.14428656, 0.11273184, 0.10870461, 0.13277838])
