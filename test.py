@@ -18,7 +18,7 @@ from ContextualLoss import Contextual_Loss, Distance_Type
 black_lv = 512
 white_lv = 16383
 n_epochs = 200
-patch_size = 256
+patch_size = 1024
 
 class RAW2RGB(torch.utils.data.Dataset):
   def __init__(self, dataset_path: str, black_lv=512, white_lv=16383):
