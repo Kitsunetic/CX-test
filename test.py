@@ -47,11 +47,19 @@ class RAW2RGB(torch.utils.data.Dataset):
     #test = Image.open(self.test_list[idx])
     
     # make image patch
-    h, w = train.shape
+    h, w = min(train.shape[0], test.shape[0]), min(train.shape[1], test.shape[1])
     dh, dw = random.randint(0, h-patch_size), random.randint(0, w-patch_size)
     train = train[dh:dh+patch_size, dw:dw+patch_size]
     test = test[dh:dh+patch_size, dw:dw+patch_size, :]
     test = Image.fromarray(test)
+    test.save('test.png')
+    train_image = np.zeros((patch_size, patch_size, 3), dtype=np.uint8)
+    train_image[:, :, 0] = train*255
+    train_image[:, :, 1] = train*255
+    train_image[:, :, 2] = train*255
+    train_image = Image.fromarray(train_image)
+    train_image.save('train.png')
+    exit()
     
     # white balance
     train = (train-black_lv) / (white_lv-black_lv)
@@ -80,7 +88,7 @@ def main():
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
   dataset = RAW2RGB('./datasets')
-  dataloader = torch.utils.data.DataLoader(dataset, batch_size=3, shuffle=True)
+  dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False)
 
   model = nn.Sequential(
     nn.Conv2d(1, 4, 4, stride=1, padding=2),
