@@ -51,7 +51,7 @@ class RAW2RGB(torch.utils.data.Dataset):
     h, w = train.shape
     dh, dw = random.randint(0, h-patch_size), random.randint(0, w-patch_size)
     train = train[dh:dh+patch_size, dw:dw+patch_size]
-    test = train[dh:dh+patch_size, dw:dw+patch_size]
+    test = test[dh:dh+patch_size, dw:dw+patch_size]
     test = Image.fromarray(test)
     
     transform_train = transforms.ToTensor()
