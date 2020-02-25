@@ -28,7 +28,7 @@ class RAW2RGB(torch.utils.data.Dataset):
     self.train_path = os.path.join(dataset_path, 'train')
     self.test_path = os.path.join(dataset_path, 'test')
     self.train_list, self.test_list = [], []
-    for i in range(len(os.listdir(self.train_path))):
+    for i in range(1, len(os.listdir(self.train_path))+1):
       self.train_list.append(os.path.join(self.train_path, '%05d.ARW'%i))
       self.test_list.append(os.path.join(self.test_path, '%05d.JPG'%i))
 
@@ -41,6 +41,7 @@ class RAW2RGB(torch.utils.data.Dataset):
   
   def __getitem__(self, idx: int):
     # load images
+    print(self.train_list[idx], self.test_list[idx])
     with rawpy.imread(self.train_list[idx]) as raw:
       train = np.array(raw.raw_image_visible, dtype=np.float32)[8:-8, 8:-8]
     test = imageio.imread(self.test_list[idx])
@@ -48,7 +49,6 @@ class RAW2RGB(torch.utils.data.Dataset):
     
     # make image patch
     h, w = train.shape
-    print(self.train_list[idx], self.test_list[idx])
     dh, dw = random.randint(0, h-patch_size), random.randint(0, w-patch_size)
     train = train[dh:dh+patch_size, dw:dw+patch_size]
     test = test[dh:dh+patch_size, dw:dw+patch_size, :]
