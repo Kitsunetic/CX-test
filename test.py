@@ -48,18 +48,19 @@ class RAW2RGB(torch.utils.data.Dataset):
     
     # make image patch
     h, w = train.shape
+    print(self.train_list[idx], self.test_list[idx])
     dh, dw = random.randint(0, h-patch_size), random.randint(0, w-patch_size)
     train = train[dh:dh+patch_size, dw:dw+patch_size]
     test = test[dh:dh+patch_size, dw:dw+patch_size, :]
     test = Image.fromarray(test)
-    #test.save('test.png')
-    #train_image = np.zeros((patch_size, patch_size, 3), dtype=np.uint8)
-    #train_image[:, :, 0] = train*255
-    #train_image[:, :, 1] = train*255
-    #train_image[:, :, 2] = train*255
-    #train_image = Image.fromarray(train_image)
-    #train_image.save('train.png')
-    #exit()
+    test.save('test.png')
+    train_image = np.zeros((patch_size, patch_size, 3), dtype=np.uint8)
+    train_image[:, :, 0] = train*255
+    train_image[:, :, 1] = train*255
+    train_image[:, :, 2] = train*255
+    train_image = Image.fromarray(train_image)
+    train_image.save('train.png')
+    exit()
     
     # white balance
     train = (train-black_lv) / (white_lv-black_lv)
