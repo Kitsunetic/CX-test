@@ -18,19 +18,6 @@ from ContextualLoss import Contextual_Loss, Distance_Type
 black_lv = 512
 white_lv = 16383
 n_epochs = 200
-shift_sign = -1
-
-rgb_mean = np.array([0.14428656, 0.11273184, 0.10870461, 0.13277838])
-
-
-class MeanShiftRaw(nn.Conv2d):
-  def __init__(self, rgb_range, rgb_mean, rgb_std=[1., 1., 1., 1.], sign=-1):
-    super(MeanShiftRaw, self).__init__(1, 4, kernel_size=1, )
-    std = torch.Tensor(rgb_std)
-    self.weight.data = torch.eye(4).view(4, 4, 1, 1) / std.view(4, 1, 1, 1)
-    self.bias.data = sign * rgb_range * torch.Tensor(rgb_mean) / std
-    for p in self.parameters():
-      p.requires_grad = False
 
 class RAW2RGB(torch.utils.data.Dataset):
   def __init__(self, dataset_path: str, black_lv=512, white_lv=16383):
@@ -90,7 +77,13 @@ def main():
   ).to(device)
 
   optimizer = torch.optim.Adam(model.parameters())
-  loss = nn.L1Loss().to(device)
+  
+  #loss = nn.L1Loss().to(device)
+  layers = {
+    "conv_1_1": 1.0,
+    "conv_3_2": 1.0
+  }
+  loss = Contextual_Loss(layers, max_1d_size=64).to(device)
   
   history = {'cost': []}
   for epoch in range(1, n_epochs+1):
@@ -136,7 +129,6 @@ def main():
         # calculate loss
         #print(result.shape, test.shape)
         cost = loss(result, test)
-        # TODO: CX, CoBi loss 적용
         
         # backward
         optimizer.zero_grad()
