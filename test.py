@@ -18,7 +18,7 @@ from ContextualLoss import Contextual_Loss, Distance_Type
 black_lv = 512
 white_lv = 16383
 n_epochs = 200
-patch_size = 64
+patch_size = 256
 
 class RAW2RGB(torch.utils.data.Dataset):
   def __init__(self, dataset_path: str, black_lv=512, white_lv=16383):
@@ -40,10 +40,9 @@ class RAW2RGB(torch.utils.data.Dataset):
         self.white_balance.append(wb)
   
   def __getitem__(self, idx: int):
+    # load images
     with rawpy.imread(self.train_list[idx]) as raw:
       train = np.array(raw.raw_image_visible, dtype=np.float32)[8:-8]
-      train = (train-black_lv) / (white_lv-black_lv)
-    
     test = imageio.imread(self.test_list[idx])
     #test = Image.open(self.test_list[idx])
     
@@ -54,6 +53,10 @@ class RAW2RGB(torch.utils.data.Dataset):
     test = test[dh:dh+patch_size, dw:dw+patch_size]
     test = Image.fromarray(test)
     
+    # white balance
+    train = (train-black_lv) / (white_lv-black_lv)
+    
+    # to tensor transformation
     transform_train = transforms.ToTensor()
     transform_test = transforms.Compose([
       transforms.Resize((test.height//2, test.width//2)),
@@ -101,6 +104,8 @@ def main():
         train = train.to(device)
         test = test.to(device)
         wb = wb.to(device) # dataloader에서 (1, 4) -> (1, 1, 4)로 변환됨
+        
+        print(train.shape, test.shape, wb.shape)
         
         # adjust wb
         train[:, 0::2, 0::2] -= wb[0][0]
